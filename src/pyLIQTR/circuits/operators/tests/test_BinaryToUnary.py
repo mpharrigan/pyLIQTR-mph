@@ -21,11 +21,15 @@ import pytest
 import cirq
 
 from pyLIQTR.circuits.operators.BinaryToUnary import BinaryToUnaryBits
+from qualtran import QUInt
 from qualtran.cirq_interop.testing import assert_circuit_inp_out_cirqsim
-from qualtran.cirq_interop.bit_tools import iter_bits
 from pyLIQTR.utils.global_ancilla_manager import gam as gam
 from pyLIQTR.utils.printing import openqasm
 from pyLIQTR.utils.resource_analysis import estimate_resources
+
+def iter_bits(val, width):
+    # Shim
+    return QUInt(bitsize=width).to_bits(val)
 
 class TestBinaryToUnaryBits:
 

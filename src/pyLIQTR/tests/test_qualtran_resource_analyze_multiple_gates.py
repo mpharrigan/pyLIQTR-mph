@@ -44,12 +44,12 @@ from typing import *
 import cirq
 
 import qualtran as qt
-from qualtran import _infra
-import qualtran.bloqs.hubbard_model as qt_hm
-from qualtran.bloqs.select_pauli_lcu import SelectPauliLCU
-from qualtran.bloqs.multi_control_multi_target_pauli import MultiTargetCNOT, MultiControlPauli
-from qualtran.bloqs.qubitization_walk_operator_test import get_walk_operator_for_1d_Ising_model
-import pytest
+from qualtran.bloqs.chemistry.hubbard_model.qubitization import PrepareHubbard
+from qualtran.bloqs.multiplexers.apply_gate_to_lth_target import ApplyGateToLthQubit
+from qualtran.bloqs.state_preparation import PrepareUniformSuperposition
+from qualtran.bloqs.multiplexers.select_pauli_lcu import SelectPauliLCU
+from qualtran.bloqs.mcmt import MultiTargetCNOT, MultiControlPauli
+from qualtran.bloqs.qubitization.qubitization_walk_operator_test import get_walk_operator_for_1d_ising_model
 
 from pyLIQTR.circuits.pyLCircuit import pyLCircuit as pylc
 
@@ -97,12 +97,11 @@ class TestCirqFTMultipleGateDecompose:
         selection_bitsize = int(np.ceil(np.log2(len(us))))
 
         gate = SelectPauliLCU(selection_bitsize, target_bitsize, select_unitaries=us)
-        cft_op = gate.on_registers(**qt._infra.gate_with_registers.get_named_qubits(gate.signature))
-        cft = qt.cirq_interop.t_complexity_protocol.t_complexity(cft_op)
+        cft = qt.cirq_interop.t_complexity_protocol.t_complexity(gate)
 
-        cirq.decompose_once(cft_op)
+        gate.decompose_bloq()
 
-        pylc_and = pylc([cft_op])
+        pylc_and = pylc(gate.as_composite_bloq().to_cirq_circuit())
         pylcra = pylc_and.resourceAnalyze(decompose_rotations=False)
 
         assert pylcra['CliffT']['T'] == cft.t
@@ -110,17 +109,16 @@ class TestCirqFTMultipleGateDecompose:
         assert pylcra['CliffT']['Clifford'] == cft.clifford
 
     def test_cirqft_apply_gate_to_lth_qubit(self):
-        apply_z_to_odd = qt.bloqs.apply_gate_to_lth_target.ApplyGateToLthQubit(
-            _infra.registers.SelectionRegister('selection', 3, 4),
+        gate = ApplyGateToLthQubit(
+            qt.Register('selection', qt.BQUInt(3, 4)),
             nth_gate=_z_to_odd,
             # control_regs=cirq_ft.Signature.build(control=2),
         )
-        cft_op = apply_z_to_odd.on_registers(**_infra.gate_with_registers.get_named_qubits(apply_z_to_odd.signature))
-        cft = qt.cirq_interop.t_complexity_protocol.t_complexity(cft_op)
+        cft = qt.cirq_interop.t_complexity_protocol.t_complexity(gate)
 
-        cirq.decompose_once(cft_op)
+        gate.decompose_bloq()
 
-        pylc_and = pylc([cft_op])
+        pylc_and = pylc(gate.as_composite_bloq().to_cirq_circuit())
         pylcra = pylc_and.resourceAnalyze(decompose_rotations=False)
 
         assert pylcra['CliffT']['T'] == cft.t
@@ -129,14 +127,13 @@ class TestCirqFTMultipleGateDecompose:
 
     def test_cirqft_hubbard(self):
         x_dim, y_dim, t = 2, 2, 5
-        mu = 4 * t
-        gate = qt_hm.PrepareHubbard(x_dim=x_dim, y_dim=x_dim, t=t, mu=mu)
-        cft_op = gate.on_registers(**_infra.gate_with_registers.get_named_qubits(gate.signature))
-        cft = qt.cirq_interop.t_complexity_protocol.t_complexity(cft_op)
+        mu = 4 / t
+        gate = PrepareHubbard(x_dim=x_dim, y_dim=x_dim, t=t, u=mu)
+        cft = qt.cirq_interop.t_complexity_protocol.t_complexity_compat(gate)
 
-        cirq.decompose_once(cft_op)
+        gate.decompose_bloq()
 
-        pylc_and = pylc([cft_op])
+        pylc_and = pylc(gate.as_composite_bloq().to_cirq_circuit())
         pylcra = pylc_and.resourceAnalyze(decompose_rotations=False)
 
         assert pylcra['CliffT']['T'] == cft.t
@@ -144,13 +141,12 @@ class TestCirqFTMultipleGateDecompose:
         assert pylcra['CliffT']['Clifford'] == cft.clifford
 
     def test_cirqft_multi_target_cnot(self):
-        gate = MultiTargetCNOT(bitsize=2) 
-        cft_op = gate.on_registers(**_infra.gate_with_registers.get_named_qubits(gate.signature))
-        cft = qt.cirq_interop.t_complexity_protocol.t_complexity(cft_op)
+        gate = MultiTargetCNOT(bitsize=2)
+        cft = qt.cirq_interop.t_complexity_protocol.t_complexity(gate)
 
-        cirq.decompose_once(cft_op)
+        gate.decompose_bloq()
 
-        pylc_and = pylc([cft_op])
+        pylc_and = pylc(gate.as_composite_bloq().to_cirq_circuit())
         pylcra = pylc_and.resourceAnalyze(decompose_rotations=False)
 
         assert pylcra['CliffT']['T'] == cft.t
@@ -159,13 +155,12 @@ class TestCirqFTMultipleGateDecompose:
 
     def test_cirqft_multicontrol_pauli(self):
         cvs = (0, 1)
-        gate = MultiControlPauli(cvs=cvs, target_gate=cirq.Z) 
-        cft_op = gate.on_registers(**_infra.gate_with_registers.get_named_qubits(gate.signature))
-        cft = qt.cirq_interop.t_complexity_protocol.t_complexity(cft_op)
+        gate = MultiControlPauli(cvs=cvs, target_gate=cirq.Z)
+        cft = qt.cirq_interop.t_complexity_protocol.t_complexity(gate)
 
-        cirq.decompose_once(cft_op)
+        gate.decompose_bloq()
 
-        pylc_and = pylc([cft_op])
+        pylc_and = pylc(gate.as_composite_bloq().to_cirq_circuit())
         pylcra = pylc_and.resourceAnalyze(decompose_rotations=False)
 
         assert pylcra['CliffT']['T'] == cft.t
@@ -177,13 +172,12 @@ class TestCirqFTMultipleGateDecompose:
         eps: float = 1e-5
         m_bits: int = 14
 
-        walk = get_walk_operator_for_1d_Ising_model(num_sites, eps)
-        cft_op = walk.on_registers(**_infra.gate_with_registers.get_named_qubits(walk.signature))
-        cft = qt.cirq_interop.t_complexity_protocol.t_complexity(cft_op)
+        gate, _ = get_walk_operator_for_1d_ising_model(num_sites, eps)
+        cft = qt.cirq_interop.t_complexity_protocol.t_complexity_compat(gate)
 
-        cirq.decompose_once(cft_op)
+        gate.decompose_bloq()
 
-        pylc_and = pylc([cft_op])
+        pylc_and = pylc(gate.as_composite_bloq().to_cirq_circuit())
         pylcra = pylc_and.resourceAnalyze(decompose_rotations=False)
 
         assert pylcra['CliffT']['T'] == cft.t
@@ -193,13 +187,10 @@ class TestCirqFTMultipleGateDecompose:
     def test_cirqft_prepare_uniform_superposition(self):
         # For now I'll tie the number if T-Basis states to 10 to test this
         # there is no particular reason for using 10 just to keep the number of iterations low enough to not impact performance.
-        gate = qt.bloqs.prepare_uniform_superposition.PrepareUniformSuperposition(n=10, cvs=(1,))
-        cft_op = gate.on_registers(**_infra.gate_with_registers.get_named_qubits(gate.signature))
+        gate = PrepareUniformSuperposition(n=10, cvs=(1,))
         cft = qt.cirq_interop.t_complexity_protocol.t_complexity(gate)
 
-        cirq.decompose_once(cft_op)
-
-        pylc_and = pylc([cft_op])
+        pylc_and = pylc(gate.as_composite_bloq().to_cirq_circuit())
         pylcra = pylc_and.resourceAnalyze(decompose_rotations=False)
 
         assert pylcra['CliffT']['T'] == cft.t

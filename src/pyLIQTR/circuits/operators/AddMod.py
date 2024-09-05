@@ -20,10 +20,9 @@ may violate any copyrights that exist in this work.
 import cirq
 import numpy as np
 from qualtran.bloqs.arithmetic.addition import Add as qtAdd
-from qualtran.bloqs.arithmetic.addition import AddConstantMod as qtAddConstantMod
+from qualtran.bloqs.arithmetic.addition import AddK as qtAddConstantMod
 from qualtran import bloqs
-from qualtran.bloqs import and_bloq
-from cirq._compat import cached_property
+from qualtran.bloqs.mcmt import and_bloq
 from typing import List, Tuple, Sequence, Optional
 from numpy.typing import NDArray
 

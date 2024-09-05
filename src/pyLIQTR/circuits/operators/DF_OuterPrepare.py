@@ -17,6 +17,8 @@ rights in this work are defined by DFARS 252.227-7013 or DFARS 252.227-7014 as d
 above. Use of this work other than as specifically authorized by the U.S. Government
 may violate any copyrights that exist in this work.
 """
+from functools import cached_property
+
 from numpy.typing import NDArray
 from typing import Tuple
 
@@ -25,9 +27,8 @@ import qualtran as qt
 from qualtran.bloqs.state_preparation import StatePreparationAliasSampling
 from qualtran.bloqs.arithmetic import LessThanEqual
 from qualtran.bloqs.basic_gates.swap import CSwap
-from qualtran.bloqs.prepare_uniform_superposition import PrepareUniformSuperposition
-from qualtran.bloqs.qrom import QROM
-from cirq._compat import cached_property
+from qualtran.bloqs.state_preparation import PrepareUniformSuperposition
+from qualtran.bloqs.data_loading import QROM
 from qualtran._infra.registers import Register
 
 from pyLIQTR.circuits.operators.FlaggedPrepareUniformSuperposition import FlaggedPrepareUniformSuperposition
@@ -40,7 +41,7 @@ class OuterPrepare(StatePreparationAliasSampling):
     @cached_property
     def junk_registers(self) -> Tuple[Register, ...]:
         return tuple(
-            Signature.build(
+            qt.Signature.build(
                 sigma_mu=self.sigma_mu_bitsize,
                 alt=self.alternates_bitsize,
                 keep=self.keep_bitsize,
@@ -72,7 +73,7 @@ class OuterPrepare(StatePreparationAliasSampling):
         )
         yield qrom_gate.on_registers(selection=selection, target0_=alt, target1_=keep)
 
-        yield LessThanEqualGate(self.mu, self.mu).on(
+        yield LessThanEqual(self.mu, self.mu).on(
             *keep, *sigma_mu, *less_than_equal
         )
         yield CSwap.make_on(
@@ -80,6 +81,6 @@ class OuterPrepare(StatePreparationAliasSampling):
         )
 
         # uncompute less than equal
-        yield LessThanEqualGate(self.mu, self.mu).on(
+        yield LessThanEqual(self.mu, self.mu).on(
             *keep, *sigma_mu, *less_than_equal
         )

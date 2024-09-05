@@ -26,9 +26,9 @@ from functools import cached_property
 from typing import List, Tuple, Sequence
 from numpy.typing import NDArray
 from qualtran import _infra
-from qualtran.linalg.lcu_util import preprocess_lcu_coefficients_for_reversible_sampling
-from qualtran.bloqs.qrom import QROM
-from qualtran.bloqs.multi_control_multi_target_pauli import MultiControlPauli
+from qualtran.linalg.lcu_util import preprocess_probabilities_for_reversible_sampling
+from qualtran.bloqs.data_loading import QROM
+from qualtran.bloqs.mcmt import MultiControlPauli
 
 from pyLIQTR.circuits.operators.AddMod import Add
 
@@ -209,8 +209,8 @@ class Subprepare_LinearT(_infra.gate_with_registers.GateWithRegisters):
         coefficients = [coeff[1] for coeff in T_array + V_array + U_array]
         theta = np.array([coeff[0] for coeff in T_array + V_array + U_array]) # entries should be 0 or 1
 
-        alt, keep, mu = preprocess_lcu_coefficients_for_reversible_sampling(
-            lcu_coefficients=coefficients, epsilon=approx_error
+        alt, keep, mu = preprocess_probabilities_for_reversible_sampling(
+            coefficients, epsilon=approx_error
         )
         theta_alt = np.array([theta[i] for i in alt])
 

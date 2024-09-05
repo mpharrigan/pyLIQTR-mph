@@ -17,6 +17,7 @@ rights in this work are defined by DFARS 252.227-7013 or DFARS 252.227-7014 as d
 above. Use of this work other than as specifically authorized by the U.S. Government
 may violate any copyrights that exist in this work.
 """
+from functools import cached_property
 from typing import Sequence, Union, Tuple, Optional
 from numpy.typing import NDArray
 
@@ -24,12 +25,16 @@ import attr
 import cirq
 import numpy as np
 
-from cirq._compat import cached_property
-from qualtran._infra.registers import SelectionRegister, Register, Signature
+from qualtran import BQUInt
+from qualtran._infra.registers import Register, Signature
 from qualtran._infra.gate_with_registers import GateWithRegisters, total_bits
 from qualtran.cirq_interop.t_complexity_protocol import TComplexity
-from qualtran.bloqs.unary_iteration_bloq import UnaryIterationGate
-from qualtran.bloqs.and_bloq import And
+from qualtran.bloqs.multiplexers.unary_iteration_bloq import UnaryIterationGate
+from qualtran.bloqs.mcmt.and_bloq import And
+
+def SelectionRegister(name, bitsize, iteration_length):
+    # Shim
+    return Register(name, dtype=BQUInt(bitsize, iteration_length))
 
 @attr.frozen
 class BinaryToUnary(UnaryIterationGate):
@@ -54,8 +59,8 @@ class BinaryToUnary(UnaryIterationGate):
         See Fig 8 of https://arxiv.org/abs/1805.03662 for more details.
     """
 
-    selection_regs: Tuple[SelectionRegister, ...] = attr.field(
-        converter=lambda v: (v,) if isinstance(v, SelectionRegister) else tuple(v)
+    selection_regs: Tuple[Register, ...] = attr.field(
+        converter=lambda v: (v,) if isinstance(v, Register) else tuple(v)
     )
     controlled: Optional[bool] = False
 
@@ -185,5 +190,5 @@ class BinaryToUnaryBits(GateWithRegisters):
 
     def _t_complexity_(self) -> TComplexity:
         num_ands = self.n_bits-1
-        resources_per_and = And(cv1=0,cv2=0)._t_complexity_()
+        resources_per_and = And(cv1=0,cv2=0).t_complexity()
         return TComplexity(t=resources_per_and.t*num_ands,clifford=resources_per_and.clifford*num_ands+self.n_bits)

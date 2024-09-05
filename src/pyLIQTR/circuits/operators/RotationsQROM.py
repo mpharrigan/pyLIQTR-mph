@@ -18,7 +18,6 @@ above. Use of this work other than as specifically authorized by the U.S. Govern
 may violate any copyrights that exist in this work.
 """
 import cirq
-from cirq._compat import cached_property
 from typing import Tuple, Callable
 from numpy.typing import NDArray
 from qualtran._infra.gate_with_registers import total_bits

@@ -22,7 +22,6 @@ import cirq
 import numpy as np
 
 from qualtran.cirq_interop.testing import assert_circuit_inp_out_cirqsim
-from qualtran.bloqs.prepare_uniform_superposition import PrepareUniformSuperposition
 from pyLIQTR.circuits.operators.QROMwithMeasurementUncompute import QROMwithMeasurementUncompute
 
 class TestQROMwithMeasurementUncompute:

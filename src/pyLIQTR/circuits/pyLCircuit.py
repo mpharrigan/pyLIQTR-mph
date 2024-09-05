@@ -267,7 +267,7 @@ class pyLCircuit (cirq.Circuit):
                 # tmp = tmp._decompose_(self=tmp)
                 gate_dict = {"PRECLIFFT_{}".format(str(x.gate)):1}
 
-                t = t_complexity.t_complexity(x)
+                t = t_complexity.t_complexity(x._gate)
 
                 # estimate gate counts based on number of rotations, but only if we don't want rotations
                 if decompose_rotations:

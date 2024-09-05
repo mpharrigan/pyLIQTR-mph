@@ -17,17 +17,17 @@ rights in this work are defined by DFARS 252.227-7013 or DFARS 252.227-7014 as d
 above. Use of this work other than as specifically authorized by the U.S. Government
 may violate any copyrights that exist in this work.
 """
+from functools import cached_property
 
 import cirq
 import warnings
 import numpy as np
 from typing import Sequence, Tuple
-from qualtran.bloqs.and_bloq import And 
-from cirq._compat import cached_property
+from qualtran.bloqs.mcmt.and_bloq import And
 from qualtran import Signature, GateWithRegisters
 from qualtran.cirq_interop.t_complexity_protocol import TComplexity
 from pyLIQTR.utils.global_ancilla_manager import GlobalQubitManager as manager
-from qualtran.bloqs.multi_control_multi_target_pauli import MultiControlPauli as mcmtp
+from qualtran.bloqs.mcmt import MultiControlPauli as mcmtp
 
 class DiagonalBitstring(GateWithRegisters):
     """

@@ -24,6 +24,7 @@ import qualtran
 import warnings
 import numpy as np
 
+from qualtran import QBit, QAny
 from ..diagonal_bitstring import DiagonalBitstring
 from qualtran._infra.gate_with_registers import get_named_qubits
 from pyLIQTR.utils.circuit_decomposition import circuit_decompose_multi
@@ -94,8 +95,8 @@ class TestDiagonalBitstring:
 
     def testTCount(self, getVector):
 
-        anc_reg = qualtran.Register(name = "ancilla", bitsize = 1)
-        data_reg = qualtran.Register(name = "data", bitsize = getVector[2][0] - 1)
+        anc_reg = qualtran.Register(name = "ancilla", dtype=QBit())
+        data_reg = qualtran.Register(name = "data", dtype=QAny(bitsize = getVector[2][0] - 1))
 
         signature = qualtran.Signature([anc_reg, data_reg])
         registers = get_named_qubits(signature)

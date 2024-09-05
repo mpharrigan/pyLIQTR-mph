@@ -44,9 +44,8 @@ from typing import *
 import cirq
 
 from qualtran import _infra
-from qualtran.bloqs.and_bloq import And
+from qualtran.bloqs.mcmt import And
 from qualtran.cirq_interop.t_complexity_protocol import t_complexity
-from qualtran.bloqs.hubbard_model import *
 
 from pyLIQTR.circuits.pyLCircuit import pyLCircuit as pylc
 
@@ -89,7 +88,7 @@ class TestCirqFTSIngleGateDecompose:
         """This tests the cirq-ft And gate and compares our resource analysis against that."""
         gate = And() 
         cft_op = gate.on_registers(**_infra.gate_with_registers.get_named_qubits(gate.signature))
-        cft = t_complexity(cft_op)
+        cft = t_complexity(gate)
 
         cirq.decompose_once(cft_op)
 
@@ -104,7 +103,7 @@ class TestCirqFTSIngleGateDecompose:
         """This tests our ability to analyze the resources of cirq-ft's Adjoint And gate."""
         gate = And() ** -1
         cft_op = gate.on_registers(**_infra.gate_with_registers.get_named_qubits(gate.signature))
-        cft = t_complexity(cft_op)
+        cft = t_complexity(gate)
 
         cirq.decompose_once(cft_op)
 

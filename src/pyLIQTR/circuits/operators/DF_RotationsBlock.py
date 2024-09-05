@@ -17,12 +17,13 @@ rights in this work are defined by DFARS 252.227-7013 or DFARS 252.227-7014 as d
 above. Use of this work other than as specifically authorized by the U.S. Government
 may violate any copyrights that exist in this work.
 """
+from functools import cached_property
+
 import cirq
 import attrs
 import qualtran as qt
 from qualtran import GateWithRegisters, Signature
 import numpy as np
-from cirq._compat import cached_property
 from typing import Sequence, Tuple
 from numpy.typing import NDArray
 from pyLIQTR.circuits.operators.ProductPauliExponentials import ProductPauliExponentials

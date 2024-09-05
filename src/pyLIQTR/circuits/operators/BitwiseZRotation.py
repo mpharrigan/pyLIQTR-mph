@@ -17,11 +17,12 @@ rights in this work are defined by DFARS 252.227-7013 or DFARS 252.227-7014 as d
 above. Use of this work other than as specifically authorized by the U.S. Government
 may violate any copyrights that exist in this work.
 """
+from functools import cached_property
+
 import cirq
 import attrs
 import numpy as np
 from qualtran import GateWithRegisters, Signature
-from cirq._compat import cached_property
 from numpy.typing import NDArray
 
 @attrs.frozen

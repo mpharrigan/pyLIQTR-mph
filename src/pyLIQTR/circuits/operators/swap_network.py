@@ -19,14 +19,19 @@ may violate any copyrights that exist in this work.
 """
 
 import math
+from functools import cached_property
+
 import cirq
 import numpy as np
 from typing import Tuple, Sequence
-from cirq._compat import cached_property
-from qualtran import Signature, GateWithRegisters, Register, SelectionRegister
-from qualtran.bloqs.multi_control_multi_target_pauli import MultiControlPauli as mcmtp
-from qualtran.bloqs.unary_iteration_bloq import UnaryIterationGate
+from qualtran import Signature, GateWithRegisters, Register, BQUInt
+from qualtran.bloqs.mcmt import MultiControlPauli as mcmtp
+from qualtran.bloqs.multiplexers.unary_iteration_bloq import UnaryIterationGate
 from pyLIQTR.utils.global_ancilla_manager import GlobalQubitManager as manager
+
+def SelectionRegister(name, bitsize, iteration_length):
+    # Shim
+    return Register(name, dtype=BQUInt(bitsize, iteration_length))
 
 class SwapUnary(UnaryIterationGate):
     """

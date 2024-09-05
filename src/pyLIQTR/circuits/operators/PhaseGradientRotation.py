@@ -17,19 +17,23 @@ rights in this work are defined by DFARS 252.227-7013 or DFARS 252.227-7014 as d
 above. Use of this work other than as specifically authorized by the U.S. Government
 may violate any copyrights that exist in this work.
 """
+from functools import cached_property
+
 import cirq
 import attrs
 import numpy as np
 from  pyLIQTR.utils.global_ancilla_manager import gam
 
-from cirq._compat import cached_property
 from numpy.typing import NDArray
 from typing import List
 
-from qualtran import GateWithRegisters, Signature
-from qualtran.bloqs.multi_control_multi_target_pauli import MultiTargetCNOT
+from qualtran import GateWithRegisters, Signature, QFxp
+from qualtran.bloqs.mcmt import MultiTargetCNOT
 from qualtran.bloqs.arithmetic import Add
-from qualtran.cirq_interop.bit_tools import iter_bits_fixed_point
+
+def iter_bits_fixed_point(val, width, signed):
+    # TODO: how to partition between fractional and integral bits?
+    QFxp(width, num_frac=width, signed=signed).to_bits(val)
 
 def approx_angle_with_br_bits(angle:float,br:int=8):
     # normalize angle

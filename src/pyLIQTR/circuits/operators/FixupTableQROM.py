@@ -23,8 +23,13 @@ from typing import Tuple, Union
 from numpy.typing import NDArray
 from functools import cached_property
 from cirq.value import Condition
-from qualtran.bloqs.unary_iteration_bloq import UnaryIterationGate
-from qualtran._infra.registers import Signature, Register, SelectionRegister
+from qualtran.bloqs.multiplexers.unary_iteration_bloq import UnaryIterationGate
+from qualtran import Signature, Register, BQUInt
+
+
+def SelectionRegister(name, bitsize, iteration_length):
+    # Shim
+    return Register(name, dtype=BQUInt(bitsize, iteration_length))
 
 class FixupTableQROM(UnaryIterationGate):
     '''

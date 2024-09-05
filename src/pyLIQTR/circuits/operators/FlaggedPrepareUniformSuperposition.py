@@ -17,18 +17,18 @@ rights in this work are defined by DFARS 252.227-7013 or DFARS 252.227-7014 as d
 above. Use of this work other than as specifically authorized by the U.S. Government
 may violate any copyrights that exist in this work.
 """
+from functools import cached_property
 from typing import Tuple
 
 import attrs
 import cirq
 import numpy as np
-from cirq._compat import cached_property
 from numpy.typing import NDArray
 
 from qualtran import GateWithRegisters, Signature
-from qualtran.bloqs.and_bloq import And, MultiAnd
+from qualtran.bloqs.mcmt.and_bloq import And, MultiAnd
 from qualtran.bloqs.arithmetic import LessThanConstant
-from qualtran.bloqs.multi_control_multi_target_pauli import MultiControlPauli
+from qualtran.bloqs.mcmt import MultiControlPauli
 
 class FlaggedPrepareUniformSuperposition(GateWithRegisters):
     '''

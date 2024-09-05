@@ -17,6 +17,7 @@ rights in this work are defined by DFARS 252.227-7013 or DFARS 252.227-7014 as d
 above. Use of this work other than as specifically authorized by the U.S. Government
 may violate any copyrights that exist in this work.
 """
+from functools import cached_property
 from typing import List, Tuple
 from numpy.typing import NDArray
 
@@ -24,9 +25,12 @@ import attr
 import cirq
 import qualtran as qt
 import numpy as np
-from cirq._compat import cached_property
-from qualtran.linalg.lcu_util import preprocess_lcu_coefficients_for_reversible_sampling
+from qualtran.linalg.lcu_util import preprocess_probabilities_for_reversible_sampling
 from pyLIQTR.circuits.operators.ControlledUniformSuperposition import ControlledPrepareUniformSuperposition
+
+def SelectionRegister(name, bitsize, iteration_length):
+    # Shim
+    return qt.Register(name, dtype=qt.BQUInt(bitsize, iteration_length))
 
 @cirq.value_equality()
 @attr.frozen
@@ -72,7 +76,7 @@ class InnerPrepare(qt.GateWithRegisters):
         # if all coeffs are 0, don't compute alt vals
         if sum(T_coeffs):
             eps = 2**(-keep_bitsize)/len(T_coeffs)
-            alt_data, keep_data, _ = preprocess_lcu_coefficients_for_reversible_sampling(lcu_coefficients=T_coeffs, epsilon=eps)
+            alt_data, keep_data, _ = preprocess_probabilities_for_reversible_sampling(T_coeffs, epsilon=eps)
             alt_signs = [T_signs[i] for i in alt_data]
         else:
             alt_data = [0]*len(T_coeffs)
@@ -86,7 +90,7 @@ class InnerPrepare(qt.GateWithRegisters):
             f_signs = fpl_signs[l][:Xi_l]
 
             eps_l = 2**(-keep_bitsize)/len(f_coeffs)
-            alt_l, keep_l, _ = preprocess_lcu_coefficients_for_reversible_sampling(lcu_coefficients=f_coeffs,epsilon=eps_l)
+            alt_l, keep_l, _ = preprocess_probabilities_for_reversible_sampling(f_coeffs,epsilon=eps_l)
             alt_signs_l = [f_signs[i] for i in alt_l]
 
             alt_data.extend(alt_l)
@@ -107,8 +111,8 @@ class InnerPrepare(qt.GateWithRegisters):
         )
 
     @cached_property
-    def extra_registers(self)-> Tuple[qt._infra.registers.Register]:
-        return ( qt._infra.registers.Signature.build(
+    def extra_registers(self)-> Tuple[qt.Register]:
+        return ( qt.Signature.build(
             unary_ancilla = self.n_Xi,
             zero_padding = self.n_LXi-self.n_Xi,
             less_than_equal_ancilla = 1,
@@ -126,9 +130,9 @@ class InnerPrepare(qt.GateWithRegisters):
         ) )
 
     @cached_property
-    def selection_registers(self) -> Tuple[qt._infra.registers.SelectionRegister]:
-        contiguous_reg = qt._infra.registers.SelectionRegister(name="contiguous_index",bitsize=self.n_LXi+1)
-        p_reg = qt._infra.registers.SelectionRegister(name="p",bitsize=self.n_Xi)
+    def selection_registers(self) -> Tuple[qt.Register]:
+        contiguous_reg = qt.Register(name="contiguous_index",bitsize=self.n_LXi+1)
+        p_reg = SelectionRegister(name="p",bitsize=self.n_Xi)
         return (contiguous_reg, p_reg)
 
     @cached_property

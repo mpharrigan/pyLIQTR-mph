@@ -17,18 +17,22 @@ rights in this work are defined by DFARS 252.227-7013 or DFARS 252.227-7014 as d
 above. Use of this work other than as specifically authorized by the U.S. Government
 may violate any copyrights that exist in this work.
 """
+from functools import cached_property
 
 import cirq
 import math
 import numpy as np
 from typing import Tuple, Sequence
-from cirq._compat import cached_property
-from qualtran import Signature, GateWithRegisters, Register, SelectionRegister
+from qualtran import Signature, GateWithRegisters, Register
 from pyLIQTR.utils.global_ancilla_manager import GlobalQubitManager as manager
 
-from qualtran.bloqs.and_bloq import And 
+from qualtran.bloqs.mcmt.and_bloq import And
 from pyLIQTR.circuits.operators.translation import Translation
-from qualtran.bloqs.unary_iteration_bloq import UnaryIterationGate
+from qualtran.bloqs.multiplexers.unary_iteration_bloq import UnaryIterationGate
+
+def SelectionRegister(name, bitsize, iteration_length):
+    # Shim
+    return Register(name, dtype=BQUInt(bitsize, iteration_length))
 
 class CascadingUnary(UnaryIterationGate):
     """

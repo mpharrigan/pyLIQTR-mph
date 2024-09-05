@@ -20,7 +20,7 @@ may violate any copyrights that exist in this work.
 import cirq
 from typing import Optional
 from qualtran._infra.gate_with_registers import split_qubits
-from qualtran.bloqs.qrom import QROM
+from qualtran.bloqs.data_loading import QROM
 
 from pyLIQTR.utils.global_ancilla_manager import gam as gam
 from pyLIQTR.circuits.operators.FixupTableQROM import FixupTableQROM

@@ -21,12 +21,16 @@ import pytest
 import cirq
 import numpy as np
 
+from qualtran import QUInt
 from qualtran.cirq_interop.testing import assert_circuit_inp_out_cirqsim
-from qualtran.cirq_interop.bit_tools import iter_bits
 from  pyLIQTR.utils.global_ancilla_manager import gam as gam
 from  pyLIQTR.utils.printing import openqasm
 from pyLIQTR.circuits.operators.PhaseGradientRotation import approx_angle_with_br_bits
 from pyLIQTR.circuits.operators.RotationsQROM import RotationsQROM
+
+def iter_bits(val, width):
+    # Shim
+    return QUInt(bitsize=width).to_bits(val)
 
 class TestRotationsQROM:
 
